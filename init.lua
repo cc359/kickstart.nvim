@@ -286,13 +286,14 @@ require('lazy').setup({
     config = function() -- This is the function that runs, AFTER loading
       require('which-key').setup()
 
-      -- Document existing key chains
-      require('which-key').register {
-        ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-        ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-        ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-        ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-        ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+      -- Document existing key chains (which-key v3 spec)
+      require('which-key').add {
+        { '<leader>c', group = '[C]ode' },
+        { '<leader>d', group = '[D]ocument' },
+        { '<leader>g', group = '[G]o' },
+        { '<leader>r', group = '[R]ename' },
+        { '<leader>s', group = '[S]earch' },
+        { '<leader>w', group = '[W]orkspace' },
       }
     end,
   },
@@ -887,6 +888,34 @@ require('lazy').setup({
     --
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects (using the `main` branch)
+  },
+
+  { -- Auto-close / auto-rename HTML & JSX/TSX tags (treesitter-powered)
+    'windwp/nvim-ts-autotag',
+    event = { 'BufReadPre', 'BufNewFile' },
+    opts = {},
+  },
+
+  { -- Go extras on top of gopls: run/test commands, toggle impl<->test file,
+    -- fill struct, if err != nil checks, etc.
+    -- NOTE: LSP, formatting-on-save and debugging are deliberately disabled
+    -- here to avoid conflicts — they're handled by gopls (lspconfig),
+    -- conform (goimports+gofumpt) and nvim-dap-go respectively.
+    'ray-x/go.nvim',
+    dependencies = { 'ray-x/guihua.lua' },
+    ft = { 'go', 'gomod', 'gosum', 'gotmpl' },
+    keys = {
+      { '<leader>gr', '<cmd>GoRun<cr>', desc = 'Go: [R]un' },
+      { '<leader>gt', '<cmd>GoTestFunc<cr>', desc = 'Go: [T]est function' },
+      { '<leader>gT', '<cmd>GoTest<cr>', desc = 'Go: Test [p]ackage' },
+      { '<leader>ga', '<cmd>GoAlt<cr>', desc = 'Go: [A]lternate test/source file' },
+    },
+    opts = {
+      lsp_cfg = false, -- gopls is configured by the lspconfig section above
+      lsp_keymaps = false, -- LSP keymaps come from kickstart's LspAttach
+      lsp_codelens = false,
+      dap_debug = false, -- debugging handled by nvim-dap-go (kickstart debug plugin)
+    },
   },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
